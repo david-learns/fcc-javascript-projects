@@ -1,0 +1,15 @@
+{
+  "name": "javascript-projects",
+  "version": "1.0.0",
+  "description": "freeCodeCamp javascript algorithms and data structures projects with unit tests",
+  "main": "javascript-projects",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^27.4.5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
