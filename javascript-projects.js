@@ -23,7 +23,7 @@ function palindrome(str) {
         throw new TypeError;
     }
 
-    let alphaNumStr = str.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+    const alphaNumStr = str.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
 
     for (let i = 0, l = alphaNumStr.length - 1; i < Math.trunc(alphaNumStr.length / 2); i++, l--) {
         if (alphaNumStr.charAt(i) !== alphaNumStr.charAt(l)) {
@@ -149,25 +149,17 @@ function telephoneCheck(str) {
  *   ["QUARTER", 4.25],
  *   ["ONE", 90],
  *   ["FIVE", 55],
- *   ["TEN", 20],
- *   ["TWENTY", 60],
- *   ["ONE HUNDRED", 100]
+ *   ["TEN", 110],
+ *   ["TWENTY", 40],
+ *   ["ONE HUNDRED", 0]
  * ]
  * 
  * @param {number} price price of thing in standard u.s. currency format
  * @param {number} cash cash paid for thing in standard u.s. currency format
- * @param {array} cid a 2d array of cash denominations in drawer
- * @returns object with keys status and a change array
+ * @param {array} cid a 2d array of cash denominations in drawer, see above
+ * @returns object with keys status and change (see project for details)
  */
 function checkCashRegister(price, cash, cid) {
-
-    if (typeof price !== 'number' || typeof cash !== 'number') {
-        throw new TypeError;
-    } else if (price < 0 || cash < 0) {
-        throw new RangeError;
-    } else if (invalidateCid(cid)) {
-        throw new SyntaxError('format of 2d array is invalid');
-    }
 
     const value = {
         'PENNY': .01,
@@ -180,7 +172,15 @@ function checkCashRegister(price, cash, cid) {
         'TWENTY': 20,
         'ONE HUNDRED': 100
     }
-    
+
+    if (typeof price !== 'number' || typeof cash !== 'number') {
+        throw new TypeError;
+    } else if (price < 0 || cash < 0) {
+        throw new RangeError;
+    } else if (invalidateCid(cid)) {
+        throw new SyntaxError('format of 2d array is invalid');
+    }
+
     let cidTotal = Number.parseFloat(cid.reduce((p, c) => p + c[1], 0).toFixed(2));
     let change = Number.parseFloat((cash - price).toFixed(2));
     let remaining = Number.parseFloat((cidTotal - change).toFixed(2));
@@ -189,14 +189,18 @@ function checkCashRegister(price, cash, cid) {
     return (status === 'CLOSED') ? { status, change: changeArr.reverse() } : { status, change: changeArr };
 
     function invalidateCid(cid) {
-        const keysArr = ['PENNY','NICKEL','DIME','QUARTER','ONE','FIVE','TEN','TWENTY','ONE HUNDRED'];
-        if (cid.length !== keysArr.length || !Array.isArray(cid)) return true;
-        for (let i = 0; i < cid.length; i++) {
-            if (cid[i][0] !== keysArr[i] || cid[i][1] < 0) {
-                return true;
-            }            
+        try {
+            if (!Array.isArray(cid) || cid.length !== Object.keys(value).length) return true;
+            for (let i = 0; i < cid.length; i++) {
+                if (!Array.isArray(cid[i]) || cid[i].length !== 2 || cid[i][0] !== Object.keys(value)[i] || cid[i][1] < 0) {
+                    return true;
+                }            
+            }
+            return false;
+        } catch (err) {
+            // if the invalidation check throws an exception, the 2d array contains an unknown critical error, return true
+            return true;
         }
-        return false;
     }
 
     function getChange(change) {

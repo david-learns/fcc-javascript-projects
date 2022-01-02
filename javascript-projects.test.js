@@ -3,6 +3,10 @@
  * jest tests on freeCodeCamp's "JavaScript Algorithms and Data Structures
  * Projects" using the (at the time) on-screen challenge test suite.
  * 
+ * Additional tests supplied for exception handling. The exceptions should
+ * not be thrown by any of freeCodeCamp's tests (assuming no further tests are
+ * run beyond those listed on-screen).
+ * 
  */
 const projects = require('./javascript-projects.js');
 const { expect, test } = require('@jest/globals');
@@ -22,6 +26,7 @@ test('palindrome: tests if string is projects.palindrome', () => {
     expect(projects.palindrome("1 eye for of 1 eye.")).toBe(false);
     expect(projects.palindrome("0_0 (: /-\ :) 0-0")).toBe(true);
     expect(projects.palindrome("five|\_/|four")).toBe(false);
+    expect(() => projects.palindrome(100.001)).toThrow(TypeError);
 });
 
 
@@ -52,6 +57,9 @@ test('convertToRoman: converts num < 4000 to roman numeral', () => {
     expect(projects.convertToRoman(1023)).toBe('MXXIII');
     expect(projects.convertToRoman(2014)).toBe('MMXIV');
     expect(projects.convertToRoman(3999)).toBe('MMMCMXCIX');
+    expect(() => projects.convertToRoman(0)).toThrow(RangeError);
+    expect(() => projects.convertToRoman(4000)).toThrow(RangeError);
+    expect(() => projects.convertToRoman('111')).toThrow(TypeError);
 });
 
 
@@ -60,6 +68,8 @@ test('rot13: decodes caesar ciphers', () => {
     expect(projects.rot13("SERR CVMMN!")).toBe('FREE PIZZA!');
     expect(projects.rot13("SERR YBIR?")).toBe('FREE LOVE?');
     expect(projects.rot13("GUR DHVPX OEBJA SBK WHZCF BIRE GUR YNML QBT.")).toBe('THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.');
+    expect(() => projects.rot13(['SERR', 'CVMMN!'])).toThrow(TypeError);
+    expect(() => projects.rot13('SERR pbr PNZC')).toThrow(RangeError);
 });
 
 
@@ -92,6 +102,7 @@ test('telephoneCheck: tests if string is valid u.s. phone number', () => {
     expect(projects.telephoneCheck("(555-555-5555")).toBe(false);
     expect(projects.telephoneCheck("(555)5(55?)-5555")).toBe(false);
     expect(projects.telephoneCheck("55 55-55-555-5")).toBe(false);
+    expect(() => projects.telephoneCheck(15555555555)).toThrow(TypeError);
 });
 
 
@@ -118,4 +129,38 @@ test('checkCashRegister: simple cash register', () => {
     cashDrawer = [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]];
     testReturn = {status: "CLOSED", change: [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]};
     expect(projects.checkCashRegister(19.5, 20, cashDrawer)).toEqual(testReturn);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 0.9], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
+    expect(() => projects.checkCashRegister('40', 60, cashDrawer)).toThrow(TypeError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 0.9], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
+    expect(() => projects.checkCashRegister(40, '60', cashDrawer)).toThrow(TypeError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 0.9], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
+    expect(() => projects.checkCashRegister(-.01, 60, cashDrawer)).toThrow(RangeError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 0.9], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
+    expect(() => projects.checkCashRegister(40, -.01, cashDrawer)).toThrow(RangeError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 0.9], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160]];
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 0.9], ["QUARTER", 3.25], ["ONE", 32], ["5", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", -0.1], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+
+    cashDrawer = {"PENNY": 0.5, "NICKEL": 1.05, "DIME": 1.50, "QUARTER": 3.25, "ONE": 32, "FIVE": 45, "TEN": 40, "TWENTY": 160, "ONE HUNDRED": 100};
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+
+    cashDrawer = [{"PENNY": 0.5}, {"NICKEL": 1.05}, {"DIME": 2.1}, {"QUARTER": 3.25}, {"ONE": 32}, {"FIVE": 45}, {"TEN": 40}, {"TWENTY": 160}, {"ONE HUNDRED": 100}];
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+
+    cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", 2.1], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100, 'Benjamin Franklin']];
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+
+    cashDrawer = undefined;
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+    
 });
