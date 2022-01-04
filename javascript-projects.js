@@ -173,12 +173,13 @@ function checkCashRegister(price, cash, cid) {
         'ONE HUNDRED': 100
     }
 
+    const errCode = invalidateCid(cid);
     if (typeof price !== 'number' || typeof cash !== 'number') {
         throw new TypeError;
-    } else if (price < 0 || cash < 0) {
+    } else if (price < 0 || cash < 0 || errCode === 2) {
         throw new RangeError;
-    } else if (invalidateCid(cid)) {
-        throw new SyntaxError('format of 2d array is invalid');
+    } else if (errCode === 1) {
+        throw new SyntaxError('format of 2d array is invalid');        
     }
 
     let cidTotal = Number.parseFloat(cid.reduce((p, c) => p + c[1], 0).toFixed(2));
@@ -190,17 +191,19 @@ function checkCashRegister(price, cash, cid) {
 
     function invalidateCid(cid) {
         try {
-            if (!Array.isArray(cid) || cid.length !== Object.keys(value).length) return true;
+            if (!Array.isArray(cid) || cid.length !== Object.keys(value).length) return 1;
             for (let i = 0; i < cid.length; i++) {
-                if (!Array.isArray(cid[i]) || cid[i].length !== 2 || cid[i][0] !== Object.keys(value)[i] || cid[i][1] < 0) {
-                    return true;
-                }            
+                if (!Array.isArray(cid[i]) || cid[i].length !== 2 || cid[i][0] !== Object.keys(value)[i]) {
+                    return 1;
+                }
+                if (cid[i][1] < 0) {
+                    return 2;
+                }
             }
-            return false;
         } catch (err) {
-            // if the invalidation check throws an exception, the 2d array contains an unknown critical error, return true
-            return true;
+            return 1;
         }
+        return 0;
     }
 
     function getChange(change) {

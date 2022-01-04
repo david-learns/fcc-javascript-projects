@@ -149,7 +149,7 @@ test('checkCashRegister: simple cash register', () => {
     expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
 
     cashDrawer = [["PENNY", 0.5], ["NICKEL", 1.05], ["DIME", -0.1], ["QUARTER", 3.25], ["ONE", 32], ["FIVE", 45], ["TEN", 40], ["TWENTY", 160], ["ONE HUNDRED", 100]];
-    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
+    expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(RangeError);
 
     cashDrawer = {"PENNY": 0.5, "NICKEL": 1.05, "DIME": 1.50, "QUARTER": 3.25, "ONE": 32, "FIVE": 45, "TEN": 40, "TWENTY": 160, "ONE HUNDRED": 100};
     expect(() => projects.checkCashRegister(40, 60, cashDrawer)).toThrow(SyntaxError);
